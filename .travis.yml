@@ -1,0 +1,20 @@
+sudo: required
+
+services:
+  - docker
+
+script:
+  - docker build --tag micro-instagram .
+  - docker images
+  - docker login -u=$DOCKER_USERNAME -p=$HEROKU_API_KEY registry.heroku.com
+  - docker tag micro-instagram registry.heroku.com/micro-instagram/web
+  - docker push registry.heroku.com/micro-instagram/web
+
+before_deploy: npm install heroku --no-save
+
+deploy:
+  - provider: script
+    script: heroku container:release web -a micro-instagram
+    skip_cleanup: true
+    on:
+      master: true
