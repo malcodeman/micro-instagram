@@ -8,15 +8,19 @@ def scrap_page(page):
     return result.json()
 
 
-def find_query_id_index(content):
-    index1 = content.find("queryId")
-    index2 = content.find("queryId", index1 + 9)
-    return content.find("queryId", index2 + 9) + 9
+def find_nth(string, sub, n):
+    start = string.find(sub)
+    while start >= 0 and n > 1:
+        start = string.find(sub, start+len(sub))
+        n -= 1
+    return start
 
 
-def get_query_id(content):
-    index = find_query_id_index(content)
-    queryId = content[index:index + 32]
+def get_query_id():
+    url = "https://www.instagram.com/static/bundles/base/ProfilePageContainer.js/1ead5e8e1146.js"
+    string = scrap_js(url)
+    index = find_nth(string, "queryId", 3) + 9
+    queryId = string[index:index + 32]
     return queryId
 
 
@@ -70,8 +74,7 @@ def get_user_info(json_content):
 
 
 def get_user(user):
-    url = "https://www.instagram.com/static/bundles/base/ProfilePageContainer.js/1ead5e8e1146.js"
-    query_id = get_query_id(scrap_js(url))
+    query_id = get_query_id()
     json_content = scrap_page(
         "https://www.instagram.com/" + str(user) + "/?__a=1")
     response = {
