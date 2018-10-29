@@ -1,5 +1,6 @@
 import requests
 import os
+from timeit import default_timer as timer
 
 
 def scrap_page(page):
@@ -37,30 +38,38 @@ def get_next_page(channel_id, query_id, end_cursor):
     return result.json()
 
 
-def get_posts_next(json_content):
-    content = json_content["data"]["user"]["edge_owner_to_timeline_media"]
-    posts_array = []
-    for post in content["edges"]:
-        posts_array.append({
+def parse_posts_list(posts):
+    posts_list = []
+    for post in posts:
+        posts_list.append({
             "pic_url": post["node"]["display_url"]
         })
-    return posts_array
+    return posts_list
 
 
 def get_posts(json_content, query_id):
-    content = json_content["graphql"]["user"]["edge_owner_to_timeline_media"]
-    next_page = content["page_info"]["has_next_page"]
-    end_cursor = content["page_info"]["end_cursor"]
-    channel_id = json_content["graphql"]["user"]["id"]
-    posts_latest = []
-    for post in content["edges"]:
-        posts_latest.append({
-            "pic_url": post["node"]["display_url"]
-        })
-    posts_next = get_posts_next(
-        get_next_page(channel_id, query_id, end_cursor))
-    merged_posts = posts_latest + posts_next
-    return merged_posts
+    start = timer()
+    print(f"get_posts start: {start}")
+    posts = parse_posts_list(
+        json_content["graphql"]["user"]["edge_owner_to_timeline_media"]["edges"])
+    next_page = json_content["graphql"]["user"]["edge_owner_to_timeline_media"]["page_info"]["has_next_page"]
+    if(next_page):
+        channel_id = json_content["graphql"]["user"]["id"]
+        end_cursor = json_content["graphql"]["user"]["edge_owner_to_timeline_media"]["page_info"]["end_cursor"]
+        next_page = get_next_page(channel_id, query_id, end_cursor)
+        has_next_page = next_page["data"]["user"]["edge_owner_to_timeline_media"]["page_info"]["has_next_page"]
+        posts_all = []
+        while has_next_page:
+            end_cursor = next_page["data"]["user"]["edge_owner_to_timeline_media"]["page_info"]["end_cursor"]
+            next_page = get_next_page(channel_id, query_id, end_cursor)
+            posts_all += parse_posts_list(
+                next_page["data"]["user"]["edge_owner_to_timeline_media"]["edges"])
+            has_next_page = next_page["data"]["user"]["edge_owner_to_timeline_media"]["page_info"]["has_next_page"]
+        posts += posts_all
+    end = timer()
+    print(f"get_posts end: {end}\n")
+    print(f"completed in {end - start} seconds")
+    return posts
 
 
 def get_user_info(json_content):
