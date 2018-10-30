@@ -18,10 +18,15 @@ def find_nth(string, sub, n):
 
 
 def get_query_id():
+    start = timer()
+    print(f"get_query_id start: {start}")
     url = "https://www.instagram.com/static/bundles/base/ProfilePageContainer.js/1ead5e8e1146.js"
     string = scrap_js(url)
     index = find_nth(string, "queryId", 3) + 9
     queryId = string[index:index + 32]
+    end = timer()
+    print(f"get_query_id end: {end}\n")
+    print(f"completed in {end - start} seconds")
     return queryId
 
 
