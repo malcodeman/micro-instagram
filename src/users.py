@@ -51,16 +51,25 @@ def parse_caption(caption):
 
 def parse_posts_list(posts):
     posts_list = []
-    for post in posts:
+    for index, post in enumerate(posts):
         posts_list.append({
             "caption": parse_caption(post["node"]["edge_media_to_caption"]["edges"]),
             "comments_count": post["node"]["edge_media_to_comment"]["count"],
             "id": post["node"]["id"],
+            "is_video": post["node"]["is_video"],
             "likes_count": post["node"]["edge_media_preview_like"]["count"],
             "pic_url": post["node"]["display_url"],
             "post_url": f'https://www.instagram.com/p/{post["node"]["shortcode"]}',
             "taken_at": post["node"]["taken_at_timestamp"],
         })
+        if posts_list[index]["is_video"]:
+            shortcode = post["node"]["shortcode"]
+            json_content = scrap_page(
+                "https://www.instagram.com/p/" + str(shortcode) + "/?__a=1")
+            video_url = json_content["graphql"]["shortcode_media"]["video_url"]
+            video_view_count = json_content["graphql"]["shortcode_media"]["video_view_count"]
+            posts_list[index].update(
+                {"video_url": video_url, "video_view_count": video_view_count})
     return posts_list
 
 
