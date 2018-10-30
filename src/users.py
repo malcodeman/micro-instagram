@@ -47,6 +47,18 @@ def parse_posts_list(posts):
     return posts_list
 
 
+def get_has_next_page(content):
+    return content["data"]["user"]["edge_owner_to_timeline_media"]["page_info"]["has_next_page"]
+
+
+def get_end_cursor(content):
+    return content["data"]["user"]["edge_owner_to_timeline_media"]["page_info"]["end_cursor"]
+
+
+def get_edges(content):
+    return content["data"]["user"]["edge_owner_to_timeline_media"]["edges"]["end_cursor"]
+
+
 def get_posts(json_content, query_id):
     start = timer()
     print(f"get_posts start: {start}")
@@ -57,14 +69,13 @@ def get_posts(json_content, query_id):
         channel_id = json_content["graphql"]["user"]["id"]
         end_cursor = json_content["graphql"]["user"]["edge_owner_to_timeline_media"]["page_info"]["end_cursor"]
         next_page = get_next_page(channel_id, query_id, end_cursor)
-        has_next_page = next_page["data"]["user"]["edge_owner_to_timeline_media"]["page_info"]["has_next_page"]
+        has_next_page = get_has_next_page(next_page)
         posts_all = []
         while has_next_page:
-            end_cursor = next_page["data"]["user"]["edge_owner_to_timeline_media"]["page_info"]["end_cursor"]
+            end_cursor = get_end_cursor(next_page)
             next_page = get_next_page(channel_id, query_id, end_cursor)
-            posts_all += parse_posts_list(
-                next_page["data"]["user"]["edge_owner_to_timeline_media"]["edges"])
-            has_next_page = next_page["data"]["user"]["edge_owner_to_timeline_media"]["page_info"]["has_next_page"]
+            posts_all += parse_posts_list(get_edges(next_page))
+            has_next_page = get_has_next_page(next_page)
         posts += posts_all
     end = timer()
     print(f"get_posts end: {end}\n")
