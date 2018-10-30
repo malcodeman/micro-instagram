@@ -56,7 +56,7 @@ def get_end_cursor(content):
 
 
 def get_edges(content):
-    return content["data"]["user"]["edge_owner_to_timeline_media"]["edges"]["end_cursor"]
+    return content["data"]["user"]["edge_owner_to_timeline_media"]["edges"]
 
 
 def get_posts(json_content, query_id):
