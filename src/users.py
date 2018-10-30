@@ -43,11 +43,23 @@ def get_next_page(channel_id, query_id, end_cursor):
     return result.json()
 
 
+def parse_caption(caption):
+    if len(caption) > 0:
+        return caption[0]["node"]["text"]
+    return None
+
+
 def parse_posts_list(posts):
     posts_list = []
     for post in posts:
         posts_list.append({
-            "pic_url": post["node"]["display_url"]
+            "caption": parse_caption(post["node"]["edge_media_to_caption"]["edges"]),
+            "comments_count": post["node"]["edge_media_to_comment"]["count"],
+            "id": post["node"]["id"],
+            "likes_count": post["node"]["edge_media_preview_like"]["count"],
+            "pic_url": post["node"]["display_url"],
+            "post_url": f'https://www.instagram.com/p/{post["node"]["shortcode"]}',
+            "taken_at": post["node"]["taken_at_timestamp"],
         })
     return posts_list
 
