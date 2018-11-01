@@ -85,24 +85,26 @@ def get_edges(content):
     return content["data"]["user"]["edge_owner_to_timeline_media"]["edges"]
 
 
-def get_posts(json_content, query_id):
+def get_all_posts(channel_id, query_id, end_cursor, next_page, posts_all, has_next_page):
+    if has_next_page == False:
+        return posts_all
+    next_page = get_next_page(channel_id, query_id, end_cursor)
+    end_cursor = get_end_cursor(next_page)
+    posts_all += parse_posts_list(get_edges(next_page))
+    has_next_page = get_has_next_page(next_page)
+    return get_all_posts(channel_id, query_id, end_cursor, next_page, posts_all, has_next_page)
+
+
+def get_posts(latest_posts, query_id):
     start = timer()
     print(f"get_posts start: {start}")
     posts = parse_posts_list(
-        json_content["graphql"]["user"]["edge_owner_to_timeline_media"]["edges"])
-    next_page = json_content["graphql"]["user"]["edge_owner_to_timeline_media"]["page_info"]["has_next_page"]
-    if(next_page):
-        channel_id = json_content["graphql"]["user"]["id"]
-        end_cursor = json_content["graphql"]["user"]["edge_owner_to_timeline_media"]["page_info"]["end_cursor"]
-        next_page = get_next_page(channel_id, query_id, end_cursor)
-        posts_all = parse_posts_list(get_edges(next_page))
-        has_next_page = get_has_next_page(next_page)
-        while has_next_page:
-            end_cursor = get_end_cursor(next_page)
-            next_page = get_next_page(channel_id, query_id, end_cursor)
-            posts_all += parse_posts_list(get_edges(next_page))
-            has_next_page = get_has_next_page(next_page)
-        posts += posts_all
+        latest_posts["graphql"]["user"]["edge_owner_to_timeline_media"]["edges"])
+    has_next_page = latest_posts["graphql"]["user"]["edge_owner_to_timeline_media"]["page_info"]["has_next_page"]
+    channel_id = latest_posts["graphql"]["user"]["id"]
+    end_cursor = latest_posts["graphql"]["user"]["edge_owner_to_timeline_media"]["page_info"]["end_cursor"]
+    posts += get_all_posts(channel_id, query_id, end_cursor,
+                           latest_posts, [], has_next_page)
     end = timer()
     print(f"get_posts end: {end}\n")
     print(f"completed in {end - start} seconds")
@@ -121,10 +123,10 @@ def get_user_info(json_content):
 
 def get_user(user):
     query_id = get_query_id()
-    json_content = scrap_page(
+    latest_posts = scrap_page(
         "https://www.instagram.com/" + str(user) + "/?__a=1")
     response = {
-        "user": get_user_info(json_content),
-        "posts": get_posts(json_content, query_id)
+        "user": get_user_info(latest_posts),
+        "posts": get_posts(latest_posts, query_id)
     }
     return response
