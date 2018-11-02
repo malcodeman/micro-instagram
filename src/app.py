@@ -18,8 +18,9 @@ def get_user(user):
 
 @app.route("/auth/login",  methods=['POST'])
 def login():
-    username = request.form["username"]
-    password = request.form["password"]
+    data = request.get_json()
+    username = data["username"]
+    password = data["password"]
     return jsonify(auth.login(username, password))
 
 
