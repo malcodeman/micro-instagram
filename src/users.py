@@ -1,10 +1,17 @@
 import requests
 import os
 from timeit import default_timer as timer
+from flask import request
+
+
+def get_auth_header():
+    return {
+        "Cookie": request.headers["Authorization"]
+    }
 
 
 def scrap_page(page):
-    headers = os.environ['COOKIE']
+    headers = get_auth_header()
     result = requests.get(page, headers=headers)
     return result.json()
 
@@ -36,7 +43,7 @@ def scrap_js(page_url):
 
 
 def get_next_page(channel_id, query_id, end_cursor):
-    headers = os.environ['COOKIE']
+    headers = get_auth_header()
     params = f'query_hash={query_id}&variables={{"id": "{channel_id}", "first": 12, "after": "{end_cursor}"}}'
     result = requests.get(
         f'https://www.instagram.com/graphql/query/?{params}',  headers=headers)
