@@ -2,8 +2,11 @@ from flask import Flask
 from flask import jsonify
 from flask import render_template
 from flask import abort
+from flask import request
+
 
 import users
+import auth
 
 app = Flask(__name__)
 
@@ -11,6 +14,13 @@ app = Flask(__name__)
 @app.route("/users/<string:user>")
 def get_user(user):
     return jsonify(users.get_user(user))
+
+
+@app.route("/auth/login",  methods=['POST'])
+def login():
+    username = request.form["username"]
+    password = request.form["password"]
+    return jsonify(auth.login(username, password))
 
 
 @app.route("/")
