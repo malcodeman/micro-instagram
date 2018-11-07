@@ -2,6 +2,7 @@ import requests
 import os
 from timeit import default_timer as timer
 from flask import request
+import pathlib
 
 
 def get_auth_header():
@@ -56,6 +57,14 @@ def parse_caption(caption):
     return None
 
 
+def download_image(id, url):
+    extension = pathlib.Path(url).suffix
+    response = requests.get(url)
+    if response.status_code == 200:
+        with open(f"/Users/username/Desktop/images/{id}{extension}", 'wb') as f:
+            f.write(response.content)
+
+
 def parse_posts_list(posts):
     posts_list = []
     for index, post in enumerate(posts):
@@ -77,6 +86,7 @@ def parse_posts_list(posts):
             video_view_count = json_content["graphql"]["shortcode_media"]["video_view_count"]
             posts_list[index].update(
                 {"video_url": video_url, "video_view_count": video_view_count})
+        #download_image(posts_list[index]["id"], posts_list[index]["pic_url"])
     return posts_list
 
 
