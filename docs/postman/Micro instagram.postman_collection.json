@@ -1,0 +1,124 @@
+{
+	"info": {
+		"_postman_id": "a63e5191-ba80-4d4a-bffd-9e0f895600c6",
+		"name": "Micro instagram",
+		"description": "Fetch instagram data",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "9216bf71-4759-42a4-8660-f09df68b26a4",
+						"exec": [
+							"const jsonData = JSON.parse(responseBody);",
+							"pm.environment.set(\"Cookie\", jsonData.Cookie);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"{{username}}\",\n    \"password\": \"{{password}}\"\n}"
+				},
+				"url": {
+					"raw": "{{url}}/auth/login",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"auth",
+						"login"
+					]
+				},
+				"description": "Login user to instagram"
+			},
+			"response": []
+		},
+		{
+			"name": "Get user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "ce8dfb2e-591f-4af8-89d2-47e0b0b7de24",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{Cookie}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{url}}/users/{{username}}",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"users",
+						"{{username}}"
+					]
+				},
+				"description": "Get user posts"
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "8b630b97-0cd2-475f-8048-8f23c8f1c279",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "e23dcbe1-fde0-4581-810d-add963f2c94b",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "7beaec2b-e678-414e-a1db-6e97899015d6",
+			"key": "url",
+			"value": "http://127.0.0.1:5000",
+			"type": "string"
+		}
+	]
+}
