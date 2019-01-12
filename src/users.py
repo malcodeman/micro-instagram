@@ -58,9 +58,19 @@ def parse_caption(caption):
 
 
 def download_image(id, url):
-    extension = pathlib.Path(url).suffix
+    extension = ".jpg"
     response = requests.get(url)
     if response.status_code == 200:
+        # Enter your username here
+        with open(f"/Users/username/Desktop/images/{id}{extension}", 'wb') as f:
+            f.write(response.content)
+
+
+def download_video(id, url):
+    extension = ".mp4"
+    response = requests.get(url)
+    if response.status_code == 200:
+        # Enter your username here
         with open(f"/Users/username/Desktop/images/{id}{extension}", 'wb') as f:
             f.write(response.content)
 
@@ -78,6 +88,8 @@ def parse_posts_list(posts):
             "post_url": f'https://www.instagram.com/p/{post["node"]["shortcode"]}',
             "taken_at": post["node"]["taken_at_timestamp"],
         })
+        # post_id = posts_list[index]["id"]
+        # pic_url = posts_list[index]["pic_url"]
         if posts_list[index]["is_video"]:
             shortcode = post["node"]["shortcode"]
             json_content = scrap_page(
@@ -86,7 +98,9 @@ def parse_posts_list(posts):
             video_view_count = json_content["graphql"]["shortcode_media"]["video_view_count"]
             posts_list[index].update(
                 {"video_url": video_url, "video_view_count": video_view_count})
-        #download_image(posts_list[index]["id"], posts_list[index]["pic_url"])
+            # download_video(post_id, video_url)
+        # else:
+            # download_image(post_id, pic_url)
     return posts_list
 
 
