@@ -11,12 +11,11 @@ def get_csrf_token():
 def get_cookie(cookies):
     csrftoken = cookies["csrftoken"]
     ds_user_id = cookies["ds_user_id"]
-    mcd = cookies["mcd"]
     rur = cookies["rur"]
     sessionid = cookies["sessionid"]
     shbid = cookies["shbid"]
     shbts = cookies["shbts"]
-    return f"csrftoken={csrftoken}; ds_user_id={ds_user_id}; mcd={mcd}; rur={rur}; sessionid={sessionid}; shbid={shbid}; shbts={shbts}"
+    return f"csrftoken={csrftoken}; ds_user_id={ds_user_id};rur={rur}; sessionid={sessionid}; shbid={shbid}; shbts={shbts}"
 
 
 def login(username, password):
@@ -31,6 +30,7 @@ def login(username, password):
     }
     url = "https://www.instagram.com/accounts/login/ajax/"
     req = requests.post(url, headers=headers, data=data)
+    
     res_cookie = {
         "Cookie": get_cookie(req.cookies)
     }
